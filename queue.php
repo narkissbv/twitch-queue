@@ -141,6 +141,25 @@
         'message' => "$username has been demoted"
       );
       die(json_encode($resp));
+    case 'list':
+      $resp = array(
+        'message' => 'Fetched list of viewers in queue',
+        'data' => array()
+      );
+      $sql = "SELECT * FROM `queue_manager`
+              WHERE channel_id = $channel_id
+              AND is_active = 1";
+      $queue_rs = mysqli_query($link, $sql);
+      while ($row = mysqli_fetch_assoc($queue_rs)) {
+        $user = array(
+          'username' => $row['username'],
+          'priority' => $row['priority'],
+          'channelId' => $row['channel_id'],
+          'is_active' => (boolean)$row['is_active']
+        );
+        array_push($resp['data'], $user);
+      }
+      die(json_encode($resp));
     default:
       http_response_code(400);
       $resp = array(

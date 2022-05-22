@@ -148,7 +148,8 @@
       );
       $sql = "SELECT * FROM `queue_manager`
               WHERE channel_id = $channel_id
-              AND is_active = 1";
+              AND is_active = 1
+              ORDER BY `priority` ASC";
       $queue_rs = mysqli_query($link, $sql);
       while ($row = mysqli_fetch_assoc($queue_rs)) {
         $user = array(

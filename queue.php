@@ -83,7 +83,7 @@
       
     case 'up':
       $sql1 = "SELECT * FROM `queue_manager`
-            WHERE username = '{$name}'
+            WHERE username = '{$username}'
             AND channel_id = $channel_id
             AND is_active = 1";
       $user_rs = mysqli_query($link, $sql1);
@@ -96,7 +96,7 @@
 
       $sql3 = "UPDATE `queue_manager`
             SET priority = {$priority}
-            WHERE username = '{$name}'";
+            WHERE username = '{$username}'";
       mysqli_query($link, $sql3);
       $priority += 1;
       $other_name = $other['username'];
@@ -126,7 +126,7 @@
 
       $sql3 = "UPDATE `queue_manager`
               SET priority = {$priority}
-              WHERE username = '{$name}'
+              WHERE username = '{$username}'
               AND channel_id = $channel_id";
       mysqli_query($link, $sql3);
       $priority -= 1;

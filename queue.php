@@ -18,7 +18,7 @@
       'message' => 'Missing params',
       'data' => $_GET
     );
-    die(json_encode($resp))
+    die(json_encode($resp));
   }
 
   $username = mysqli_real_escape_string($link, $_GET['username']);
@@ -35,7 +35,7 @@
       $user_rs = mysqli_query($link, $sql);
       if (mysqli_num_rows($user_rs) > 0) {
         $resp = array(
-          'message': "${username}, you are already in queue_manager. Please be patient"
+          'message' => "${username}, you are already in queue_manager. Please be patient"
         );
         die(json_encode($resp));
       }
@@ -47,11 +47,11 @@
       $row = mysqli_fetch_assoc($max_rs);
       $max_priority = (int)$row['maxp'] + 1;
 
-      $sql = "INSERT INTO `queue_manager` (username, priority, channel_id)
-              VALUES('{$username}', {$max_priority}, {$channel_id})";
+      $sql = "INSERT INTO `queue_manager` (username, priority, channel_id, is_active)
+              VALUES('{$username}', {$max_priority}, {$channel_id}, 1)";
       $result = mysqli_query($link, $sql);
       $resp = array(
-        'message': "{$username} added to queue"
+        'message' => "{$username} added to queue"
       );
       die(json_encode($resp));
     case 'leave':
@@ -69,13 +69,14 @@
                 AND channel_id={$channel_id}";
         mysqli_query($link, $sql);
         $resp = array(
-          'message': "{$username}, you have been removed from queue"
+          'message' => "{$username}, you have been removed from queue"
         );
+        die(json_encode($resp));
       }
       http_response_code(404);
       $resp = array(
-        'message': "Sorry, {$username}, couldn't find you in queue",
-        'data': $_GET
+        'message' => "Sorry, {$username}, couldn't find you in queue",
+        'data' => $_GET
       );
       die(json_encode($resp));
       
@@ -102,10 +103,10 @@
       $sql4 = "UPDATE `queue_manager`
             SET priority = {$priority}
             WHERE username = '{$other_name}'
-            AND deleted = 0";
+            AND is_active = 1";
       mysqli_query($link, $sql4);
       $resp = array(
-        'message': "$username has been promoted"
+        'message' => "$username has been promoted"
       );
       die(json_encode($resp));
     case 'down':
@@ -134,7 +135,7 @@
               SET priority = {$priority}
               WHERE username = '{$other_name}'
               AND channel_id = $channel_id
-              AND deleted = 0";
+              AND is_active = 1";
       mysqli_query($link, $sql4);
       $resp = array(
         'message' => "$username has been demoted"
@@ -143,8 +144,8 @@
     default:
       http_response_code(400);
       $resp = array(
-        'message': 'Missing params',
-        'data': $_GET
+        'message' => 'Missing params',
+        'data' => $_GET
       );
       die(json_encode($resp));
   }

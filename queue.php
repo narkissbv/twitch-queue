@@ -42,7 +42,8 @@
 
       $sql = "SELECT max(priority) as maxp
               FROM `queue_manager`
-              WHERE channel_id={$channel_id}";
+              WHERE channel_id={$channel_id}
+              AND is_active = 1";
       $max_rs = mysqli_query($link, $sql);
       $row = mysqli_fetch_assoc($max_rs);
       $max_priority = (int)$row['maxp'] + 1;

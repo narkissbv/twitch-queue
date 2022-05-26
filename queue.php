@@ -91,20 +91,26 @@
       $user = mysqli_fetch_assoc($user_rs);
       $priority = (int)$user['priority'] - 1;
 
-      $sql2 = "SELECT * FROM `queue_manager` WHERE priority = {$priority}";
+      $sql2 = "SELECT * FROM `queue_manager`
+               WHERE priority = {$priority}
+               AND is_active = 1
+               AND channel_id='$channel_id'";
       $other_rs = mysqli_query($link, $sql2);
       $other = mysqli_fetch_assoc($other_rs);
 
       $sql3 = "UPDATE `queue_manager`
             SET priority = {$priority}
-            WHERE username = '{$username}'";
+            WHERE username = '{$username}'
+            AND channel_id='$channel_id'
+            AND is_active = 1";
       mysqli_query($link, $sql3);
       $priority += 1;
       $other_name = $other['username'];
       $sql4 = "UPDATE `queue_manager`
             SET priority = {$priority}
             WHERE username = '{$other_name}'
-            AND is_active = 1";
+            AND is_active = 1
+            AND channel_id='$channel_id'";
       mysqli_query($link, $sql4);
       $resp = array(
         'message' => "$username has been promoted"
@@ -121,6 +127,7 @@
 
       $sql2 = "SELECT * FROM `queue_manager`
                WHERE priority = {$priority}
+               AND is_active = 1
                AND channel_id = '$channel_id'";
       $other_rs = mysqli_query($link, $sql2);
       $other = mysqli_fetch_assoc($other_rs);
@@ -128,6 +135,7 @@
       $sql3 = "UPDATE `queue_manager`
               SET priority = {$priority}
               WHERE username = '{$username}'
+              AND is_active = 1
               AND channel_id = '$channel_id'";
       mysqli_query($link, $sql3);
       $priority -= 1;

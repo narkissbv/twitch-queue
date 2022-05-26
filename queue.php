@@ -30,7 +30,7 @@
       # Check whether viewer is alreay in queue
       $sql = "SELECT * FROM `queue_manager`
               WHERE username='{$username}'
-              AND channel_id={$channel_id}
+              AND channel_id='{$channel_id}'
               AND is_active=1";
       $user_rs = mysqli_query($link, $sql);
       if (mysqli_num_rows($user_rs) > 0) {
@@ -42,14 +42,14 @@
 
       $sql = "SELECT max(priority) as maxp
               FROM `queue_manager`
-              WHERE channel_id={$channel_id}
+              WHERE channel_id='{$channel_id}'
               AND is_active = 1";
       $max_rs = mysqli_query($link, $sql);
       $row = mysqli_fetch_assoc($max_rs);
       $max_priority = (int)$row['maxp'] + 1;
 
       $sql = "INSERT INTO `queue_manager` (username, priority, channel_id, is_active)
-              VALUES('{$username}', {$max_priority}, {$channel_id}, 1)";
+              VALUES('{$username}', {$max_priority}, '{$channel_id}', 1)";
       $result = mysqli_query($link, $sql);
       $resp = array(
         'message' => "{$username} added to queue"
@@ -59,7 +59,7 @@
       # Check whether viewer is alreay in queue
       $sql = "SELECT * FROM `queue_manager`
               WHERE username='{$username}'
-              AND channel_id={$channel_id}
+              AND channel_id='{$channel_id}'
               AND is_active=1";
       $user_rs = mysqli_query($link, $sql);
       if (mysqli_num_rows($user_rs) > 0) {
@@ -67,7 +67,7 @@
         $sql = "UPDATE `queue_manager`
                 SET is_active = 0
                 WHERE username='{$username}'
-                AND channel_id={$channel_id}";
+                AND channel_id='{$channel_id}'";
         mysqli_query($link, $sql);
         $resp = array(
           'message' => "{$username}, you have been removed from queue"
@@ -85,7 +85,7 @@
     case 'up':
       $sql1 = "SELECT * FROM `queue_manager`
             WHERE username = '{$username}'
-            AND channel_id = $channel_id
+            AND channel_id = '$channel_id'
             AND is_active = 1";
       $user_rs = mysqli_query($link, $sql1);
       $user = mysqli_fetch_assoc($user_rs);
@@ -113,7 +113,7 @@
     case 'down':
       $sql1 = "SELECT * FROM `queue_manager`
               WHERE username = '{$username}'
-              AND channel_id = $channel_id
+              AND channel_id = '$channel_id'
               AND is_active = 1";
       $user_rs = mysqli_query($link, $sql1);
       $user = mysqli_fetch_assoc($user_rs);
@@ -121,21 +121,21 @@
 
       $sql2 = "SELECT * FROM `queue_manager`
                WHERE priority = {$priority}
-               AND channel_id = $channel_id";
+               AND channel_id = '$channel_id'";
       $other_rs = mysqli_query($link, $sql2);
       $other = mysqli_fetch_assoc($other_rs);
 
       $sql3 = "UPDATE `queue_manager`
               SET priority = {$priority}
               WHERE username = '{$username}'
-              AND channel_id = $channel_id";
+              AND channel_id = '$channel_id'";
       mysqli_query($link, $sql3);
       $priority -= 1;
       $other_name = $other['username'];
       $sql4 = "UPDATE `queue_manager`
               SET priority = {$priority}
               WHERE username = '{$other_name}'
-              AND channel_id = $channel_id
+              AND channel_id = '$channel_id'
               AND is_active = 1";
       mysqli_query($link, $sql4);
       $resp = array(
@@ -148,7 +148,7 @@
         'data' => array()
       );
       $sql = "SELECT * FROM `queue_manager`
-              WHERE channel_id = $channel_id
+              WHERE channel_id = '$channel_id'
               AND is_active = 1
               ORDER BY `priority` ASC";
       $queue_rs = mysqli_query($link, $sql);

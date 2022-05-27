@@ -27,6 +27,18 @@
 
   switch($command) {
     case 'join':
+      # check whether channel is active
+      $sql = "SELECT * FROM `queue_channel_config`
+              WHERE channel_id='$channel_id'
+              AND is_active=1";
+      $config_rs = mysqli_query($link, $sql);
+      if (mysqli_num_rows($config_rs) == 0) {
+        $resp = array(
+          'message' => 'Queue is now closed'
+        );
+        die(json_encode($resp));
+      }
+
       # Check whether viewer is alreay in queue
       $sql = "SELECT * FROM `queue_manager`
               WHERE username='{$username}'

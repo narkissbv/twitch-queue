@@ -101,22 +101,38 @@
             AND is_active = 1";
       $user_rs = mysqli_query($link, $sql1);
       $user = mysqli_fetch_assoc($user_rs);
-      $priority = (int)$user['priority'] - 1;
+      $priority = (int)$user['priority'];
+
+      $other_priority_sql = "SELECT max(priority)
+                             AS `priority`
+                             FROM `queue_manager`
+                             WHERE priority < $priority
+                             AND is_active = 1";
+      $other_priority_rs = mysqli_query($link, $other_priority_sql);
+      if (mysqli_num_rows($other_priority_rs) == 0) {
+        http_response_code(400);
+        $resp = array(
+          'message' => "Error, $username is currently the first in queue",
+          'data' => $_POST
+        );
+        die(json_encode($resp));
+      }
+      $other_priority_row = mysqli_fetch_assoc($other_priority_rs);
+      $other_priority = (int)$other_priority_row['priority'];
 
       $sql2 = "SELECT * FROM `queue_manager`
-               WHERE priority = {$priority}
+               WHERE priority = {$other_priority}
                AND is_active = 1
                AND channel_id='$channel_id'";
       $other_rs = mysqli_query($link, $sql2);
       $other = mysqli_fetch_assoc($other_rs);
-
+      
       $sql3 = "UPDATE `queue_manager`
-            SET priority = {$priority}
+            SET priority = {$other_priority}
             WHERE username = '{$username}'
             AND channel_id='$channel_id'
             AND is_active = 1";
       mysqli_query($link, $sql3);
-      $priority += 1;
       $other_name = $other['username'];
       $sql4 = "UPDATE `queue_manager`
             SET priority = {$priority}
@@ -130,33 +146,49 @@
       die(json_encode($resp));
     case 'down':
       $sql1 = "SELECT * FROM `queue_manager`
-              WHERE username = '{$username}'
-              AND channel_id = '$channel_id'
-              AND is_active = 1";
+            WHERE username = '{$username}'
+            AND channel_id = '$channel_id'
+            AND is_active = 1";
       $user_rs = mysqli_query($link, $sql1);
       $user = mysqli_fetch_assoc($user_rs);
-      $priority = (int)$user['priority'] + 1;
+      $priority = (int)$user['priority'];
+
+      $other_priority_sql = "SELECT min(priority)
+                             AS `priority`
+                             FROM `queue_manager`
+                             WHERE priority > $priority
+                             AND is_active = 1";
+      $other_priority_rs = mysqli_query($link, $other_priority_sql);
+      if (mysqli_num_rows($other_priority_rs) == 0) {
+        http_response_code(400);
+        $resp = array(
+          'message' => "Error, $username is currently the last in queue",
+          'data' => $_POST
+        );
+        die(json_encode($resp));
+      }
+      $other_priority_row = mysqli_fetch_assoc($other_priority_rs);
+      $other_priority = (int)$other_priority_row['priority'];
 
       $sql2 = "SELECT * FROM `queue_manager`
-               WHERE priority = {$priority}
+               WHERE priority = {$other_priority}
                AND is_active = 1
-               AND channel_id = '$channel_id'";
+               AND channel_id='$channel_id'";
       $other_rs = mysqli_query($link, $sql2);
       $other = mysqli_fetch_assoc($other_rs);
-
+      
       $sql3 = "UPDATE `queue_manager`
-              SET priority = {$priority}
-              WHERE username = '{$username}'
-              AND is_active = 1
-              AND channel_id = '$channel_id'";
+            SET priority = {$other_priority}
+            WHERE username = '{$username}'
+            AND channel_id='$channel_id'
+            AND is_active = 1";
       mysqli_query($link, $sql3);
-      $priority -= 1;
       $other_name = $other['username'];
       $sql4 = "UPDATE `queue_manager`
-              SET priority = {$priority}
-              WHERE username = '{$other_name}'
-              AND channel_id = '$channel_id'
-              AND is_active = 1";
+            SET priority = {$priority}
+            WHERE username = '{$other_name}'
+            AND is_active = 1
+            AND channel_id='$channel_id'";
       mysqli_query($link, $sql4);
       $resp = array(
         'message' => "$username has been demoted"
